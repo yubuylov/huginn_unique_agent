@@ -48,9 +48,9 @@ module Agents
     end
 
     def initialize_redis
-      host = ENV['UNIQUE_REDIS_HOST'].present? || "127.0.0.1"
-      port = ENV['UNIQUE_REDIS_PORT'].present? || "6379"
-      ns = ENV['UNIQUE_REDIS_NS'].present? || "huginn"
+      host = ENV['UNIQUE_REDIS_HOST'].presence || "127.0.0.1"
+      port = ENV['UNIQUE_REDIS_PORT'].presence || "6379"
+      ns = ENV['UNIQUE_REDIS_NS'].presence || "huginn"
       @redis = Redis::Namespace.new(ns, :redis => Redis.new(host: host, port: port))
     end
 
