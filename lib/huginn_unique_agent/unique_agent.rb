@@ -36,7 +36,7 @@ module Agents
     after_initialize :initialize_redis
 
     def memory=(value)
-      @redis.del("unique#{id}") if value == {}
+      @redis.del(redis_key) if value == {}
       self[:memory] = value
     end
 
