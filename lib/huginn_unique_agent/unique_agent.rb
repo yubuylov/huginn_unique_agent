@@ -1,5 +1,6 @@
 require 'redis'
 require 'redis-namespace'
+require 'time'
 
 module Agents
   class UniqueAgent < Agent
@@ -42,7 +43,7 @@ module Agents
 
     def memory
       {
-          'length' => @redis.zcount(redis_key, 0, 0),
+          'length' => @redis.zcount(redis_key, '-inf', '+inf'),
           'keys' => @redis.zrange(redis_key, 0, -1)
       }
     end
@@ -96,14 +97,13 @@ module Agents
     end
 
     def is_unique?(property)
-      @redis.zadd(redis_key, 0, property)
+      @redis.zadd(redis_key, Time.now.to_i, property)
     end
 
-    def check_memory(amount)
-      length = @redis.zcount(redis_key, 0, 0)
-      if amount != 0 && length == amount
-        val = @redis.zrange(redis_key, 0, 0)
-        @redis.zrem(redis_key, val)
+    def check_memory(max)
+      length = @redis.zcount(redis_key, '-inf', '+inf')
+      if max != 0 && length > max
+        @redis.zrange(redis_key, 0, length-max-1).map{|v| @redis.zrem(redis_key, v) }
       end
     end
   end
